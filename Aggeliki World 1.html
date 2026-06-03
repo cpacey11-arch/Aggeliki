@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="el">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Aggeliki World</title>
+<style>
+body{
+    margin:0;
+    font-family:Arial,sans-serif;
+    background:linear-gradient(#ffd6f3,#d6f5ff);
+    text-align:center;
+    color:#444;
+}
+header{
+    background:#ff8fd1;
+    padding:20px;
+    color:white;
+    font-size:2em;
+    font-weight:bold;
+}
+.container{
+    display:flex;
+    flex-wrap:wrap;
+    justify-content:center;
+    gap:20px;
+    padding:20px;
+}
+.card{
+    background:white;
+    border-radius:20px;
+    padding:20px;
+    width:320px;
+    box-shadow:0 4px 10px rgba(0,0,0,0.15);
+}
+.avatar{
+    width:180px;
+    height:280px;
+    margin:auto;
+    position:relative;
+}
+.head{
+    width:90px;
+    height:90px;
+    background:#ffd7b5;
+    border-radius:50%;
+    position:absolute;
+    top:20px;
+    left:45px;
+    z-index:2;
+}
+.hair{
+    width:100px;
+    height:60px;
+    border-radius:50px 50px 20px 20px;
+    position:absolute;
+    top:5px;
+    left:40px;
+    z-index:3;
+}
+.body{
+    width:120px;
+    height:130px;
+    border-radius:20px;
+    position:absolute;
+    top:105px;
+    left:30px;
+}
+.legs{
+    position:absolute;
+    top:230px;
+    left:55px;
+    width:70px;
+    height:50px;
+    background:#ffd7b5;
+}
+.option-btn{
+    margin:5px;
+    padding:8px 12px;
+    border:none;
+    border-radius:12px;
+    cursor:pointer;
+    font-weight:bold;
+}
+.locked{
+    opacity:0.5;
+}
+.question{
+    font-size:1.5em;
+    margin:15px 0;
+}
+.answer{
+    padding:10px;
+    font-size:1.1em;
+    width:80px;
+    text-align:center;
+}
+button{
+    cursor:pointer;
+}
+.score{
+    font-size:1.3em;
+    margin-top:10px;
+}
+.success{
+    color:green;
+}
+.error{
+    color:red;
+}
+footer{
+    margin-top:20px;
+    padding:15px;
+    font-size:0.9em;
+}
+</style>
+</head>
+<body>
+
+<header>🌈 Aggeliki World 🌈</header>
+
+<div class="container">
+
+<div class="card">
+<h2>👧 Το Avatar σου</h2>
+
+<div class="avatar">
+    <div class="hair" id="hair"></div>
+    <div class="head"></div>
+    <div class="body" id="body"></div>
+    <div class="legs"></div>
+</div>
+
+<h3>💇 Μαλλιά</h3>
+<div id="hairOptions"></div>
+
+<h3>👗 Ρούχα</h3>
+<div id="clothesOptions"></div>
+
+<p>Κέρδισε αστέρια λύνοντας μαθηματικά!</p>
+</div>
+
+<div class="card">
+<h2>📚 Μαθηματικά Α΄ Δημοτικού</h2>
+
+<div class="question" id="question"></div>
+
+<input type="number" class="answer" id="answer">
+<br><br>
+<button class="option-btn" onclick="checkAnswer()">Απάντηση</button>
+
+<div id="message"></div>
+
+<div class="score">
+⭐ Αστέρια: <span id="stars">0</span>
+</div>
+
+<p>Κάθε σωστή απάντηση = 1 αστέρι!</p>
+<p>Ξεκλειδώνεις νέα ρούχα και μαλλιά!</p>
+</div>
+
+</div>
+
+<footer>
+Aggeliki World — εκπαιδευτικό παιχνίδι εμπνευσμένο από χαρούμενα avatar dress-up games 🎀
+</footer>
+
+<script>
+let num1, num2, correct;
+let stars = 0;
+
+const hairStyles = [
+    {color:"#8b4513", unlock:0},
+    {color:"#ff66b3", unlock:3},
+    {color:"#6a5acd", unlock:6},
+    {color:"#00b894", unlock:9}
+];
+
+const clothesStyles = [
+    {color:"#ff7675", unlock:0},
+    {color:"#74b9ff", unlock:2},
+    {color:"#ffeaa7", unlock:5},
+    {color:"#a29bfe", unlock:8}
+];
+
+function renderOptions(){
+    const hairDiv = document.getElementById("hairOptions");
+    const clothesDiv = document.getElementById("clothesOptions");
+
+    hairDiv.innerHTML = "";
+    clothesDiv.innerHTML = "";
+
+    hairStyles.forEach(style=>{
+        const btn = document.createElement("button");
+        btn.className="option-btn";
+        btn.style.background=style.color;
+        btn.innerText = stars >= style.unlock ? "Επιλογή" : "🔒 "+style.unlock;
+        if(stars >= style.unlock){
+            btn.onclick=()=> {
+                document.getElementById("hair").style.background=style.color;
+            };
+        } else {
+            btn.classList.add("locked");
+        }
+        hairDiv.appendChild(btn);
+    });
+
+    clothesStyles.forEach(style=>{
+        const btn = document.createElement("button");
+        btn.className="option-btn";
+        btn.style.background=style.color;
+        btn.innerText = stars >= style.unlock ? "Επιλογή" : "🔒 "+style.unlock;
+        if(stars >= style.unlock){
+            btn.onclick=()=> {
+                document.getElementById("body").style.background=style.color;
+            };
+        } else {
+            btn.classList.add("locked");
+        }
+        clothesDiv.appendChild(btn);
+    });
+}
+
+function newQuestion(){
+    num1 = Math.floor(Math.random()*10)+1;
+    num2 = Math.floor(Math.random()*10);
+
+    if(Math.random()>0.5){
+        correct = num1 + num2;
+        document.getElementById("question").innerText =
+            num1 + " + " + num2 + " = ?";
+    } else {
+        if(num2>num1){
+            [num1,num2] = [num2,num1];
+        }
+        correct = num1 - num2;
+        document.getElementById("question").innerText =
+            num1 + " - " + num2 + " = ?";
+    }
+
+    document.getElementById("answer").value="";
+}
+
+function checkAnswer(){
+    const ans = Number(document.getElementById("answer").value);
+    const msg = document.getElementById("message");
+
+    if(ans === correct){
+        stars++;
+        document.getElementById("stars").innerText = stars;
+        msg.innerHTML = "<p class='success'>Μπράβο! ⭐</p>";
+        renderOptions();
+    } else {
+        msg.innerHTML = "<p class='error'>Δοκίμασε ξανά 😊</p>";
+    }
+
+    newQuestion();
+}
+
+document.getElementById("hair").style.background="#8b4513";
+document.getElementById("body").style.background="#ff7675";
+
+renderOptions();
+newQuestion();
+</script>
+
+</body>
+</html>
